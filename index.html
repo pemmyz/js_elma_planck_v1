@@ -5,35 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planck.js Ball Physics</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Import Planck.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/planck-js@0.3.31/dist/planck.min.js"></script>
 </head>
 <body>
     <div id="container">
         <canvas id="simulation"></canvas>
-        
-        <!-- Options Trigger Button -->
-        <button id="btn-options-trigger">Options (Press O-key)</button>
-
-        <!-- Options Menu Modal -->
+        <button id="btn-options-trigger">Options (Press O)</button>
         <div id="options-menu" class="hidden">
             <div class="menu-content">
                 <h2>Simulation Options</h2>
-                
                 <div class="option-group">
                     <label><strong>Start Style:</strong></label>
                     <div class="radio-group">
-                        <label>
-                            <input type="radio" name="style" value="new" checked> 
-                            New (Top-Left Ball Only)
-                        </label>
-                        <label>
-                            <input type="radio" name="style" value="old"> 
-                            Old (All Balls Random)
-                        </label>
+                        <label><input type="radio" name="style" value="new" checked> New (Top-Left Ball Only)</label>
+                        <label><input type="radio" name="style" value="old"> Old (All Balls Random)</label>
                     </div>
                 </div>
-
                 <div class="menu-actions">
                     <button id="btn-apply">Restart & Apply</button>
                     <button id="btn-close">Close Menu</button>

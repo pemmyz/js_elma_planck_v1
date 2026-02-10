@@ -22,7 +22,6 @@ canvas {
     border: 1px solid #444;
 }
 
-/* Button in Bottom Left */
 #btn-options-trigger {
     position: absolute;
     bottom: 20px;
@@ -35,13 +34,13 @@ canvas {
     font-size: 14px;
     z-index: 10;
     transition: background 0.2s;
+    border-radius: 4px;
 }
 
 #btn-options-trigger:hover {
     background-color: rgba(50, 50, 50, 0.9);
 }
 
-/* Options Menu Overlay */
 #options-menu {
     position: absolute;
     top: 0;
@@ -84,7 +83,7 @@ canvas {
 .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     margin-top: 10px;
 }
 
@@ -92,7 +91,10 @@ canvas {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    padding: 8px;
+    border-radius: 4px;
 }
 
 .menu-actions {
@@ -112,15 +114,9 @@ button {
 #btn-apply {
     background-color: #28a745;
     color: white;
-}
-#btn-apply:hover {
-    background-color: #218838;
-}
+} #btn-apply:hover { background-color: #218838; }
 
 #btn-close {
     background-color: #6c757d;
     color: white;
-}
-#btn-close:hover {
-    background-color: #5a6268;
-}
+} #btn-close:hover { background-color: #5a6268; }
