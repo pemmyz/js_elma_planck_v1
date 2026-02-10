@@ -7,35 +7,40 @@ const HEIGHT = 720;
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
+// UI Elements
+const menu = document.getElementById('options-menu');
+const btnTrigger = document.getElementById('btn-options-trigger');
+const btnApply = document.getElementById('btn-apply');
+const btnClose = document.getElementById('btn-close');
+const radioButtons = document.getElementsByName('style');
+
+// Game State Configuration
+let config = {
+    style: 'new' // 'new' (default) or 'old'
+};
+
 // Planck.js setup
 const pl = planck;
 const Vec2 = pl.Vec2;
 
 // PHYSICS CONFIGURATION
-// Scale: 30 pixels = 1 meter (Box2D/Planck works best with MKS units)
-const SCALE = 30; 
-
-// World with 0 gravity (top-down view simulation)
-const world = pl.World(Vec2(0, 0));
+const SCALE = 30; // 30 pixels = 1 meter
+const world = pl.World(Vec2(0, 0)); // 0 Gravity
 
 // DEFINITIONS
-// Base radius for the "Big Balls" (in pixels)
 const BASE_RADIUS_PX = 60; 
-
 const BALL_DENSITY = 1.0;
-const BALL_FRICTION = 0.3; // Friction required to generate spin on collision
-const BALL_RESTITUTION = 1.0; // 1.0 = Perfectly elastic (bounces with same force, no energy loss)
+const BALL_FRICTION = 0.3; 
+const BALL_RESTITUTION = 1.0; 
 
-// Store bodies for rendering
+// Store bodies
 const balls = [];
 
-// Helper to convert Pixels to Meters
+// Helper: Pixels <-> Meters
 const p2m = (px) => px / SCALE;
-// Helper to convert Meters to Pixels
 const m2p = (m) => m * SCALE;
 
-// 1. Create Walls (Static Bodies)
-// We create walls so balls don't fly off screen.
+// 1. Create Walls
 function createWall(x, y, w, h) {
     const body = world.createBody(Vec2(p2m(x), p2m(y)));
     body.createFixture(pl.Box(p2m(w/2), p2m(h/2)), {
@@ -44,7 +49,6 @@ function createWall(x, y, w, h) {
     });
 }
 
-// Top, Bottom, Left, Right Walls
 const wallThickness = 50;
 createWall(WIDTH/2, -wallThickness/2, WIDTH, wallThickness); // Top
 createWall(WIDTH/2, HEIGHT + wallThickness/2, WIDTH, wallThickness); // Bottom
@@ -52,29 +56,33 @@ createWall(-wallThickness/2, HEIGHT/2, wallThickness, HEIGHT); // Left
 createWall(WIDTH + wallThickness/2, HEIGHT/2, wallThickness, HEIGHT); // Right
 
 // 2. Create Balls
-function createBall(xPx, yPx, radiusPx, color) {
+function createBall(xPx, yPx, radiusPx, color, shouldMove) {
     const radiusM = p2m(radiusPx);
     
-    // Dynamic body with mass and inertia
+    // Dynamic body
     const body = world.createDynamicBody(Vec2(p2m(xPx), p2m(yPx)));
     
-    // NO DAMPENING as requested (inertia is kept fully)
+    // No dampening
     body.setLinearDamping(0.0);
     body.setAngularDamping(0.0);
 
     body.createFixture(pl.Circle(radiusM), {
         density: BALL_DENSITY,
-        friction: BALL_FRICTION, // Friction causes rotation when balls slide/hit
+        friction: BALL_FRICTION,
         restitution: BALL_RESTITUTION 
     });
 
-    // Give them a random initial velocity so they start bouncing immediately
-    const speed = 15; 
-    const angle = Math.random() * Math.PI * 2;
-    body.setLinearVelocity(Vec2(
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed
-    ));
+    if (shouldMove) {
+        const speed = 15; 
+        const angle = Math.random() * Math.PI * 2;
+        body.setLinearVelocity(Vec2(
+            Math.cos(angle) * speed,
+            Math.sin(angle) * speed
+        ));
+    } else {
+        body.setLinearVelocity(Vec2(0, 0));
+        body.setAngularVelocity(0);
+    }
 
     balls.push({
         body: body,
@@ -85,58 +93,74 @@ function createBall(xPx, yPx, radiusPx, color) {
 
 // 3. Initialize 3x3 Matrix
 function initGame() {
-    // Clear existing balls if restarting
+    // Clear existing balls
     balls.forEach(b => world.destroyBody(b.body));
     balls.length = 0;
 
-    // Grid Settings
     const rows = 3;
-    const cols = 3;
     
-    // Calculate spacing
-    const startX = WIDTH * 0.2; // Start at 20% width
-    const spaceX = WIDTH * 0.3; // Space columns out
+    // Spacing calculations
+    const startX = WIDTH * 0.2; 
+    const spaceX = WIDTH * 0.3; 
     const startY = HEIGHT * 0.25;
     const spaceY = HEIGHT * 0.25;
 
     for (let r = 0; r < rows; r++) {
         const yPos = startY + (r * spaceY);
 
-        /* 
-           Columns Logic:
-           Left (0): 0.75 of Middle
-           Middle (1): Half of Big
-           Right (2): Big Balls
-        */
-       
-        // Right Most (Col 2)
+        // Logic for movement based on style
+        // 'old': everyone moves
+        // 'new': only Top Left (row 0, col 0) moves
+        const isOldStyle = config.style === 'old';
+        const isTopRow = r === 0;
+
+        // --- Column 2: Big Balls (Right) ---
         const bigR = BASE_RADIUS_PX; 
-        createBall(startX + (spaceX * 2), yPos, bigR, '#FF5733'); // Red/Orange
+        createBall(
+            startX + (spaceX * 2), 
+            yPos, 
+            bigR, 
+            '#FF5733', 
+            isOldStyle // In 'new' mode, these are static
+        );
 
-        // Middle (Col 1)
+        // --- Column 1: Middle Balls (Middle) ---
         const midR = bigR * 0.5;
-        createBall(startX + (spaceX * 1), yPos, midR, '#33FF57'); // Green
+        createBall(
+            startX + (spaceX * 1), 
+            yPos, 
+            midR, 
+            '#33FF57', 
+            isOldStyle // In 'new' mode, these are static
+        );
 
-        // Left Most (Col 0)
+        // --- Column 0: Small Balls (Left) ---
         // 0.75 of the middle balls
         const leftR = midR * 0.75; 
-        createBall(startX, yPos, leftR, '#3357FF'); // Blue
+        
+        // In New mode, only top row (r==0) moves for this column
+        const leftShouldMove = isOldStyle || (config.style === 'new' && isTopRow);
+
+        createBall(
+            startX, 
+            yPos, 
+            leftR, 
+            '#3357FF', 
+            leftShouldMove
+        );
     }
 }
 
 // 4. Render Loop
 function loop() {
-    // Step physics: 1/60 seconds
     world.step(1 / 60);
 
-    // Clear Canvas
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-    // Draw Balls
     for (let i = 0; i < balls.length; i++) {
         const b = balls[i];
-        const pos = b.body.getPosition(); // in meters
-        const angle = b.body.getAngle();  // in radians
+        const pos = b.body.getPosition();
+        const angle = b.body.getAngle();
 
         const x = m2p(pos.x);
         const y = m2p(pos.y);
@@ -145,7 +169,6 @@ function loop() {
         ctx.translate(x, y);
         ctx.rotate(angle);
 
-        // Draw Circle
         ctx.beginPath();
         ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
         ctx.fillStyle = b.color;
@@ -154,14 +177,13 @@ function loop() {
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw a line inside to visualize Spin/Inertia
+        // Spin visualization
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(b.radius, 0); // Line from center to edge
+        ctx.lineTo(b.radius, 0); 
         ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
         ctx.stroke();
 
-        // Draw a cross to see rotation better
         ctx.beginPath();
         ctx.moveTo(0, -b.radius/2);
         ctx.lineTo(0, b.radius/2);
@@ -173,15 +195,54 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+// 5. Input Handling & Menu Logic
+
+function toggleMenu() {
+    menu.classList.toggle('hidden');
+}
+
+function updateConfigFromUI() {
+    for (const rb of radioButtons) {
+        if (rb.checked) {
+            config.style = rb.value;
+            break;
+        }
+    }
+}
+
+// Open Menu Logic
+btnTrigger.addEventListener('click', () => {
+    toggleMenu();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'o' || e.key === 'O') {
+        toggleMenu();
+    }
+});
+
+// Menu Buttons
+btnApply.addEventListener('click', () => {
+    updateConfigFromUI();
+    initGame();
+    menu.classList.add('hidden'); // Close menu after applying
+});
+
+btnClose.addEventListener('click', () => {
+    // Just close, don't restart (unless user manually clicked apply before)
+    // To ensure UI matches reality if they changed radio but didn't click apply:
+    // We could revert UI, but simple is fine:
+    menu.classList.add('hidden');
+});
+
+// Canvas click to reset (Quick restart based on current config)
+canvas.addEventListener('click', () => {
+    // Only reset if menu is closed to prevent clicking through
+    if(menu.classList.contains('hidden')) {
+        initGame();
+    }
+});
+
 // Start
 initGame();
 loop();
-
-// Reset on click
-canvas.addEventListener('click', () => {
-    // To reset, we just re-run init. 
-    // Note: In a real complex app, you'd manage memory better, 
-    // but planck handles body destruction efficiently.
-    // We clear the JS array in initGame.
-    initGame();
-});
