@@ -22,7 +22,7 @@ const SCALE = 30;
 // Physics World
 const world = pl.World({
     gravity: Vec2(0, 0),
-    velocityThreshold: 0, // Critical for keeping momentum
+    velocityThreshold: 0, 
     blockSolve: true 
 });
 
@@ -46,7 +46,7 @@ const boundsBottom = p2m(HEIGHT);
 function createWall(x, y, w, h) {
     const body = world.createBody(Vec2(p2m(x), p2m(y)));
     body.createFixture(pl.Box(p2m(w/2), p2m(h/2)), {
-        friction: 0.0, // Frictionless walls helps prevent initial sticking
+        friction: 0.0, 
         restitution: 1.0, 
         density: 0.0
     });
@@ -61,7 +61,7 @@ createWall(WIDTH + wallThickness/2, HEIGHT/2, wallThickness, HEIGHT); // Right
 function createBall(xPx, yPx, radiusPx, color, shouldMove) {
     const radiusM = p2m(radiusPx);
     const body = world.createDynamicBody(Vec2(p2m(xPx), p2m(yPx)));
-    body.setBullet(true); // CCD enabled
+    body.setBullet(true);
     body.setLinearDamping(0.0);
     body.setAngularDamping(0.0);
 
@@ -100,12 +100,15 @@ function initGame() {
         const isOldStyle = config.style === 'old';
         const isTopRow = r === 0;
 
+        // Big Ball
         const bigR = BASE_RADIUS_PX; 
         createBall(startX + (spaceX * 2), yPos, bigR, '#FF5733', isOldStyle);
 
+        // Medium Ball
         const midR = bigR * 0.5;
         createBall(startX + (spaceX * 1), yPos, midR, '#33FF57', isOldStyle);
 
+        // Small Ball
         const leftR = midR * 0.75; 
         const leftShouldMove = isOldStyle || (config.style === 'new' && isTopRow);
         createBall(startX, yPos, leftR, '#3357FF', leftShouldMove);
@@ -117,13 +120,7 @@ function loop() {
     world.step(1 / 60);
 
     // --- CORNER EJECTION LOGIC ---
-    // 1. Detect if ball is in corner.
-    // 2. If so, calculate speed and redirect exactly 45 degrees away.
-    // 3. Nudge ball slightly away from wall so physics engine doesn't cancel the bounce.
-    
-    // Tolerance buffer for wall detection
     const tolerance = p2m(1.0); 
-    // Small nudge amount (meters) to clear the wall collision
     const nudge = p2m(2.0); 
 
     balls.forEach(b => {
@@ -131,41 +128,32 @@ function loop() {
         const r = p2m(b.radius);
         const vel = b.body.getLinearVelocity();
         
-        // Check Wall Touches
         const touchLeft = (pos.x - r <= boundsLeft + tolerance);
         const touchRight = (pos.x + r >= boundsRight - tolerance);
         const touchTop = (pos.y - r <= boundsTop + tolerance);
         const touchBottom = (pos.y + r >= boundsBottom - tolerance);
 
-        // Check if hitting a corner (2 walls at once)
         if ((touchLeft && touchTop) || (touchRight && touchTop) || 
             (touchLeft && touchBottom) || (touchRight && touchBottom)) {
             
-            // Get current speed. If it's sliding slowly, give it a minimum boost (15).
             let speed = vel.length();
             if (speed < 15) speed = 15;
 
-            // Calculate 45 degree components: Speed * sin(45) = Speed * 0.7071
             const component = speed * 0.7071;
 
             if (touchLeft && touchTop) {
-                // Top-Left -> Go Bottom-Right (+X, +Y)
                 b.body.setLinearVelocity(Vec2(component, component));
-                // Teleport slightly out to prevent sticking
                 b.body.setPosition(Vec2(boundsLeft + r + nudge, boundsTop + r + nudge));
             } 
             else if (touchRight && touchTop) {
-                // Top-Right -> Go Bottom-Left (-X, +Y)
                 b.body.setLinearVelocity(Vec2(-component, component));
                 b.body.setPosition(Vec2(boundsRight - r - nudge, boundsTop + r + nudge));
             } 
             else if (touchLeft && touchBottom) {
-                // Bottom-Left -> Go Top-Right (+X, -Y)
                 b.body.setLinearVelocity(Vec2(component, -component));
                 b.body.setPosition(Vec2(boundsLeft + r + nudge, boundsBottom - r - nudge));
             } 
             else if (touchRight && touchBottom) {
-                // Bottom-Right -> Go Top-Left (-X, -Y)
                 b.body.setLinearVelocity(Vec2(-component, -component));
                 b.body.setPosition(Vec2(boundsRight - r - nudge, boundsBottom - r - nudge));
             }
@@ -186,17 +174,50 @@ function loop() {
         ctx.translate(x, y);
         ctx.rotate(angle);
 
+        // 1. Draw Main Ball
         ctx.beginPath();
         ctx.arc(0, 0, b.radius, 0, Math.PI * 2);
         ctx.fillStyle = b.color;
         ctx.fill();
+        
+        // 2. Draw Main Ball Outline
         ctx.strokeStyle = "white";
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(b.radius, 0); 
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)"; ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, -b.radius/2); ctx.lineTo(0, b.radius/2); ctx.stroke();
+        // 3. Draw Transparent Inner Circles
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.4)"; 
+        ctx.lineWidth = 2;
+
+        if (b.radius >= 55) { 
+            // --- BIG BALL (Radius 60) ---
+            // Previous state: Radius 20, Gap 20.
+            // Goal: Keep Gap 20. Make inner circles smaller so the gap BETWEEN them
+            // equals their diameter (width).
+            // Formula: Gap(20) + Diameter(2r) + MidGap(2r) + Diameter(2r) + Gap(20) = 120
+            // 40 + 6r = 120 -> 6r = 80 -> r = 13.333...
+            // Offset from center = HalfMiddleGap (r) + Radius (r) = 2r = 26.666...
+            const smallR = 13.33; 
+            const offset = 26.66; 
+            
+            ctx.beginPath(); ctx.arc(-offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+
+        } else if (b.radius >= 25) {
+            // --- MEDIUM BALL (Radius 30) ---
+            const smallR = 6;
+            const offset = 12;
+            ctx.beginPath(); ctx.arc(-offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+
+        } else {
+            // --- SMALL BALL (Radius 22.5) ---
+            const smallR = 4.5;
+            const offset = 9;
+            ctx.beginPath(); ctx.arc(-offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
+        }
+
         ctx.restore();
     }
     requestAnimationFrame(loop);
