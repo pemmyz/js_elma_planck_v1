@@ -3,24 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planck.js Ball Physics</title>
+    <title>Planck.js Fullscreen Physics</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/planck-js@0.3.31/dist/planck.min.js"></script>
 </head>
 <body>
+    <!-- The Full Screen Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- The Physics Container -->
     <div id="container">
         <canvas id="simulation"></canvas>
         <button id="btn-options-trigger">Options (Press O)</button>
         <div id="options-menu" class="hidden">
             <div class="menu-content">
                 <h2>Simulation Options</h2>
+                
+                <!-- Start Style (Radio Buttons) -->
                 <div class="option-group">
-                    <label><strong>Start Style:</strong></label>
+                    <label><strong>Start Behavior:</strong></label>
                     <div class="radio-group">
                         <label><input type="radio" name="style" value="new" checked> New (Top-Left Ball Only)</label>
                         <label><input type="radio" name="style" value="old"> Old (All Balls Random)</label>
                     </div>
                 </div>
+
+                <!-- Graphics Style (Dropdown) -->
+                <div class="option-group">
+                    <label for="graphics-style"><strong>Graphics Style:</strong></label>
+                    <select id="graphics-style">
+                        <option value="new" selected>New (Transparent Grey)</option>
+                        <option value="old">Old (Colored & Bordered)</option>
+                    </select>
+                </div>
+
+                <!-- Background Text (Input) -->
+                <div class="option-group">
+                    <label for="bg-text-input"><strong>Background Text:</strong></label>
+                    <input type="text" id="bg-text-input" value="pemmyz" maxlength="20" autocomplete="off">
+                </div>
+
                 <div class="menu-actions">
                     <button id="btn-apply">Restart & Apply</button>
                     <button id="btn-close">Close Menu</button>
