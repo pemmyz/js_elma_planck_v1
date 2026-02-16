@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planck.js Fullscreen Physics</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Planck.js Physics Engine -->
     <script src="https://cdn.jsdelivr.net/npm/planck-js@0.3.31/dist/planck.min.js"></script>
 </head>
 <body>
@@ -15,6 +16,7 @@
     <div id="container">
         <canvas id="simulation"></canvas>
         <button id="btn-options-trigger">Options (Press O)</button>
+        
         <div id="options-menu" class="hidden">
             <div class="menu-content">
                 <h2>Simulation Options</h2>
@@ -40,7 +42,8 @@
                 <!-- Background Text (Input) -->
                 <div class="option-group">
                     <label for="bg-text-input"><strong>Background Text:</strong></label>
-                    <input type="text" id="bg-text-input" value="pemmyz" maxlength="20" autocomplete="off">
+                    <!-- Increased maxlength to 60 to allow longer text -->
+                    <input type="text" id="bg-text-input" value="pemmyz" maxlength="60" autocomplete="off">
                 </div>
 
                 <div class="menu-actions">

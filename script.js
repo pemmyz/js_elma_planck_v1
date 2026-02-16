@@ -41,8 +41,6 @@ const wallBodies = [];
 
 // --- WALL LOGIC ---
 const wallThickness = 50;
-
-// Variables for corner logic
 let boundsLeft, boundsRight, boundsTop, boundsBottom;
 
 function updateBounds() {
@@ -130,23 +128,17 @@ function initGame() {
         const isOldStyle = config.style === 'old';
         const isTopRow = r === 0;
 
-        // --- NEW POSITIONING ---
-        // Left: Small
-        // Center: Medium
-        // Right: Big
-        // Added extra spacing (offsets 130 and 150)
-
         // 1. Small Ball (Left)
-        const smallR = BASE_RADIUS_PX * 0.5 * 0.75; // ~22.5px
+        const smallR = BASE_RADIUS_PX * 0.5 * 0.75; 
         const leftShouldMove = isOldStyle || (config.style === 'new' && isTopRow);
         createBall(centerX - 130, yPos, smallR, '#3357FF', leftShouldMove);
 
         // 2. Medium Ball (Center)
-        const midR = BASE_RADIUS_PX * 0.5; // 30px
+        const midR = BASE_RADIUS_PX * 0.5;
         createBall(centerX, yPos, midR, '#33FF57', isOldStyle);
 
         // 3. Big Ball (Right)
-        const bigR = BASE_RADIUS_PX; // 60px
+        const bigR = BASE_RADIUS_PX; 
         createBall(centerX + 150, yPos, bigR, '#FF5733', isOldStyle);
     }
 }
@@ -264,6 +256,7 @@ function updateConfigFromUI() {
     }
     config.graphics = selectGraphics.value;
     
+    // Update background text
     if (window.updateBgText) {
         window.updateBgText(bgInput.value || " ");
     }
@@ -271,6 +264,7 @@ function updateConfigFromUI() {
 
 btnTrigger.addEventListener('click', toggleMenu);
 document.addEventListener('keydown', (e) => {
+    // Check if user is typing in the box
     if (e.target !== bgInput && (e.key === 'o' || e.key === 'O')) {
         toggleMenu();
     }
@@ -317,6 +311,7 @@ loop();
 
     function updateDimensions() {
         tileCtx.font = FONT_STR;
+        // Measure the text width so long strings don't get cut off
         const metrics = tileCtx.measureText(currentText);
         const textWidth = Math.ceil(metrics.width);
         
@@ -456,6 +451,7 @@ loop();
     window.addEventListener("keydown", (e) => {
         if (e.target.tagName === 'INPUT') return;
 
+        // Press 'A' to toggle noise animation on background
         if (e.key.toLowerCase() === "a") {
             animateNoise = !animateNoise;
             startBg();
