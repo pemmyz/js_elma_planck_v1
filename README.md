@@ -13,6 +13,12 @@ Click the canvas to restart the simulation, or press **O** to open options.
 A fullscreen HTML5 canvas demo powered by Planck.js, featuring a bouncy physics simulation with multiple ball sizes, smooth collision behavior, and a customizable retro-style green background. The project includes an in-game options menu to switch between different start behaviors, change ball rendering styles, and edit the background text live. Designed as a lightweight, no-build, browser-run physics + visual playground.
 
 
+## Screenshots
+
+### Game
+![Game 1](screenshots/game_1.png)
+
+
 ---
 
 ## ✨ Features
