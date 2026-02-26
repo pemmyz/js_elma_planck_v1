@@ -74,6 +74,7 @@ function setupWalls() {
 
 setupWalls();
 
+// Handle Resizing (Scale to current window)
 window.addEventListener('resize', () => {
     WIDTH = window.innerWidth;
     HEIGHT = window.innerHeight;
@@ -239,14 +240,28 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// --- MENU & INPUT ---
+// --- UI & INTERACTIONS ---
 const menu = document.getElementById('options-menu');
 const btnTrigger = document.getElementById('btn-options-trigger');
+const btnMobile = document.getElementById('btn-mobile');
 const btnApply = document.getElementById('btn-apply');
 const btnClose = document.getElementById('btn-close');
 const radioButtons = document.getElementsByName('style');
 const selectGraphics = document.getElementById('graphics-style');
 const bgInput = document.getElementById('bg-text-input');
+
+// --- FULLSCREEN LOGIC ---
+function goFull() {
+  const el = document.documentElement;
+  if (el.requestFullscreen) {
+    el.requestFullscreen();
+  } else if (el.webkitRequestFullscreen) { // older Android/Safari fallback
+    el.webkitRequestFullscreen();
+  }
+}
+
+// Attach fullscreen to the new button
+btnMobile.addEventListener('click', goFull);
 
 function toggleMenu() { menu.classList.toggle('hidden'); }
 
@@ -275,6 +290,8 @@ btnApply.addEventListener('click', () => {
     menu.classList.add('hidden'); 
 });
 btnClose.addEventListener('click', () => { menu.classList.add('hidden'); });
+
+// Click on canvas resets game ONLY if menu is closed
 canvas.addEventListener('click', () => {
     if(menu.classList.contains('hidden')) initGame();
 });
@@ -393,12 +410,19 @@ loop();
 
     function resize() {
         const dpr = window.devicePixelRatio || 1;
+        // Make sure background covers the whole window even after resize
         screen.width = Math.floor(window.innerWidth * dpr);
         screen.height = Math.floor(window.innerHeight * dpr);
         sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        
+        // Redraw if static mode
+        if (!animateNoise && cachedStaticImg) {
+            drawStaggeredTiling(cachedStaticImg);
+        }
     }
 
     function drawStaggeredTiling(imgSource) {
+        // Clear based on dynamic window size
         sctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         sctx.fillStyle = "rgb(12, 55, 12)";
         sctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
@@ -458,12 +482,7 @@ loop();
         }
     });
 
-    window.addEventListener("resize", () => {
-        resize();
-        if (!animateNoise && cachedStaticImg) {
-            drawStaggeredTiling(cachedStaticImg);
-        }
-    });
+    window.addEventListener("resize", resize);
 
     resize();
     startBg();

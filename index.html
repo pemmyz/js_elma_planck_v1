@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Planck.js Fullscreen Physics</title>
     <link rel="stylesheet" href="style.css">
     <!-- Planck.js Physics Engine -->
@@ -15,8 +15,14 @@
     <!-- The Physics Container -->
     <div id="container">
         <canvas id="simulation"></canvas>
+        
+        <!-- NEW: Mobile Fullscreen Button (Top Left) -->
+        <button id="btn-mobile">Switch to mobile</button>
+
+        <!-- Options Button (Bottom Left) -->
         <button id="btn-options-trigger">Options (Press O)</button>
         
+        <!-- Options Menu Overlay -->
         <div id="options-menu" class="hidden">
             <div class="menu-content">
                 <h2>Simulation Options</h2>
@@ -42,7 +48,6 @@
                 <!-- Background Text (Input) -->
                 <div class="option-group">
                     <label for="bg-text-input"><strong>Background Text:</strong></label>
-                    <!-- Increased maxlength to 60 to allow longer text -->
                     <input type="text" id="bg-text-input" value="pemmyz" maxlength="60" autocomplete="off">
                 </div>
 
