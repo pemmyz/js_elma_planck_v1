@@ -2,6 +2,8 @@
 
 # Planck.js Fullscreen Physics (with Dynamic Background)
 
+## Play it now: https://pemmyz.github.io/js_elma_planck_v1/
+
 A fullscreen HTML5 canvas demo that combines:
 
 - **Planck.js physics** (bouncing balls + walls)
