@@ -10,9 +10,39 @@ body {
     touch-action: none; /* Prevents scrolling on mobile */
 }
 
+/* --- MOBILE MODE LOCK (Prevents dragging screen) --- */
+body.mobile-mode {
+    overflow: hidden;      
+    touch-action: none;    
+    position: fixed;       
+    width: 100%;
+    height: 100%;
+}
+
+/* Container */
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* THE FIXED 1920x1080 SCREEN */
+#screen {
+    width: 1920px;
+    height: 1080px;
+    background: #000;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center; 
+    overflow: hidden;
+    /* Transform (scale + translate) applied via JS */
+}
+
 /* Background Canvas */
 #bg-canvas {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -40,8 +70,6 @@ canvas#simulation {
 }
 
 /* --- UI Buttons --- */
-
-/* Mobile / Fullscreen Button (Top Left) */
 #btn-mobile {
     position: absolute;
     top: 20px;
@@ -51,18 +79,17 @@ canvas#simulation {
     border: 1px solid #777;
     padding: 10px 15px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 24px; /* Scaled up slightly for 1080p layout */
     z-index: 20;
     transition: background 0.2s;
     border-radius: 4px;
     pointer-events: auto;
 }
 
-#btn-mobile:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+#btn-mobile:hover { 
+    background-color: rgba(255, 255, 255, 0.25); 
 }
 
-/* Options Button (Bottom Left) */
 #btn-options-trigger {
     position: absolute;
     bottom: 20px;
@@ -72,23 +99,23 @@ canvas#simulation {
     border: 1px solid #555;
     padding: 10px 15px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 24px;
     z-index: 20;
     transition: background 0.2s;
     border-radius: 4px;
     pointer-events: auto;
 }
 
-#btn-options-trigger:hover {
-    background-color: rgba(50, 50, 50, 0.9);
+#btn-options-trigger:hover { 
+    background-color: rgba(50, 50, 50, 0.9); 
 }
 
 /* --- Options Menu Overlay --- */
 #options-menu {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
     z-index: 30;
@@ -98,18 +125,19 @@ canvas#simulation {
     pointer-events: auto;
 }
 
-#options-menu.hidden {
-    display: none;
+#options-menu.hidden { 
+    display: none; 
 }
 
 .menu-content {
     background-color: #333;
-    padding: 30px;
+    padding: 40px;
     border-radius: 8px;
     border: 1px solid #555;
-    width: 320px;
+    width: 500px; /* Scaled for 1080p */
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    font-size: 20px;
 }
 
 .menu-content h2 {
@@ -117,78 +145,67 @@ canvas#simulation {
     color: #fff;
     border-bottom: 1px solid #555;
     padding-bottom: 15px;
+    font-size: 32px;
 }
 
-.option-group {
-    margin: 20px 0;
-    text-align: left;
+.option-group { 
+    margin: 20px 0; 
+    text-align: left; 
 }
 
-.radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 10px;
+.radio-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    margin-top: 10px; 
 }
 
 .radio-group label {
     cursor: pointer;
-    display: flex;
-    align-items: center;
+    display: flex; 
+    align-items: center; 
     gap: 10px;
     background: rgba(255,255,255,0.05);
-    padding: 8px;
+    padding: 12px; 
     border-radius: 4px;
 }
 
-/* Form Inputs */
 select, input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 10px;
-    padding: 10px;
-    background-color: rgba(255,255,255,0.1);
+    width: 100%; 
+    box-sizing: border-box; 
+    margin-top: 10px; 
+    padding: 15px;
+    background-color: rgba(255,255,255,0.1); 
     border: 1px solid #555;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
+    color: white; 
+    border-radius: 4px; 
+    font-size: 20px; 
     outline: none;
 }
 
-select {
-    cursor: pointer;
+select { cursor: pointer; }
+select option { background-color: #333; color: white; }
+input[type="text"]:focus { 
+    border-color: #28a745; 
+    background-color: rgba(255,255,255,0.15); 
 }
 
-select option {
-    background-color: #333;
-    color: white;
+.menu-actions { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-top: 25px; 
 }
 
-input[type="text"]:focus {
-    border-color: #28a745;
-    background-color: rgba(255,255,255,0.15);
+button { 
+    padding: 12px 24px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 18px;
 }
 
-.menu-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
-}
-
-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-#btn-apply {
-    background-color: #28a745;
-    color: white;
-} #btn-apply:hover { background-color: #218838; }
-
-#btn-close {
-    background-color: #6c757d;
-    color: white;
-} #btn-close:hover { background-color: #5a6268; }
+#btn-apply { background-color: #28a745; color: white; } 
+#btn-apply:hover { background-color: #218838; }
+#btn-close { background-color: #6c757d; color: white; } 
+#btn-close:hover { background-color: #5a6268; }

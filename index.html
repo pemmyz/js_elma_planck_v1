@@ -2,58 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- CRITICAL: Prevents zooming and enables proper scaling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Planck.js Fullscreen Physics</title>
+    <title>Planck.js Fullscreen Physics (1080p Scaled)</title>
     <link rel="stylesheet" href="style.css">
     <!-- Planck.js Physics Engine -->
     <script src="https://cdn.jsdelivr.net/npm/planck-js@0.3.31/dist/planck.min.js"></script>
 </head>
 <body>
-    <!-- The Full Screen Background -->
-    <canvas id="bg-canvas"></canvas>
+    <!-- The Container that centers the game -->
+    <div id="game-container">
+        <!-- The Fixed 1920x1080 Screen -->
+        <div id="screen">
+            <!-- The Background Canvas -->
+            <canvas id="bg-canvas"></canvas>
 
-    <!-- The Physics Container -->
-    <div id="container">
-        <canvas id="simulation"></canvas>
-        
-        <!-- NEW: Mobile Fullscreen Button (Top Left) -->
-        <button id="btn-mobile">Switch to mobile</button>
-
-        <!-- Options Button (Bottom Left) -->
-        <button id="btn-options-trigger">Options (Press O)</button>
-        
-        <!-- Options Menu Overlay -->
-        <div id="options-menu" class="hidden">
-            <div class="menu-content">
-                <h2>Simulation Options</h2>
+            <!-- The Physics Container -->
+            <div id="container">
+                <canvas id="simulation"></canvas>
                 
-                <!-- Start Style (Radio Buttons) -->
-                <div class="option-group">
-                    <label><strong>Start Behavior:</strong></label>
-                    <div class="radio-group">
-                        <label><input type="radio" name="style" value="new" checked> New (Top-Left Ball Only)</label>
-                        <label><input type="radio" name="style" value="old"> Old (All Balls Random)</label>
+                <!-- Mobile Fullscreen Button (Top Left) -->
+                <button id="btn-mobile">Switch to mobile</button>
+
+                <!-- Options Button (Bottom Left) -->
+                <button id="btn-options-trigger">Options (Press O)</button>
+                
+                <!-- Options Menu Overlay -->
+                <div id="options-menu" class="hidden">
+                    <div class="menu-content">
+                        <h2>Simulation Options</h2>
+                        
+                        <!-- Start Style (Radio Buttons) -->
+                        <div class="option-group">
+                            <label><strong>Start Behavior:</strong></label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="style" value="new" checked> New (Top-Left Ball Only)</label>
+                                <label><input type="radio" name="style" value="old"> Old (All Balls Random)</label>
+                            </div>
+                        </div>
+
+                        <!-- Graphics Style (Dropdown) -->
+                        <div class="option-group">
+                            <label for="graphics-style"><strong>Graphics Style:</strong></label>
+                            <select id="graphics-style">
+                                <option value="new" selected>New (Transparent Grey)</option>
+                                <option value="old">Old (Colored & Bordered)</option>
+                            </select>
+                        </div>
+
+                        <!-- Background Text (Input) -->
+                        <div class="option-group">
+                            <label for="bg-text-input"><strong>Background Text:</strong></label>
+                            <input type="text" id="bg-text-input" value="pemmyz" maxlength="60" autocomplete="off">
+                        </div>
+
+                        <div class="menu-actions">
+                            <button id="btn-apply">Restart & Apply</button>
+                            <button id="btn-close">Close Menu</button>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Graphics Style (Dropdown) -->
-                <div class="option-group">
-                    <label for="graphics-style"><strong>Graphics Style:</strong></label>
-                    <select id="graphics-style">
-                        <option value="new" selected>New (Transparent Grey)</option>
-                        <option value="old">Old (Colored & Bordered)</option>
-                    </select>
-                </div>
-
-                <!-- Background Text (Input) -->
-                <div class="option-group">
-                    <label for="bg-text-input"><strong>Background Text:</strong></label>
-                    <input type="text" id="bg-text-input" value="pemmyz" maxlength="60" autocomplete="off">
-                </div>
-
-                <div class="menu-actions">
-                    <button id="btn-apply">Restart & Apply</button>
-                    <button id="btn-close">Close Menu</button>
                 </div>
             </div>
         </div>

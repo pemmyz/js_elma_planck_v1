@@ -1,30 +1,52 @@
 // ==========================================
+// SCALING LOGIC (Strict 1080p Aspect Ratio)
+// ==========================================
+function scaleGame() {
+    const screen = document.getElementById("screen");
+    const baseWidth = 1920;
+    const baseHeight = 1080;
+    
+    // Math.min forces a strict 16:9 aspect ratio fit (letterbox/pillarbox)
+    const scale = Math.min(
+        window.innerWidth / baseWidth,
+        window.innerHeight / baseHeight
+    );
+    
+    // Translate centers the screen strictly, scale fits it into the viewport
+    screen.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    document.body.classList.add('mobile-mode'); // Locks scrolling & swipe gestures
+}
+
+// Attach scaling listeners
+window.addEventListener("resize", scaleGame);
+window.addEventListener("fullscreenchange", scaleGame);
+window.addEventListener("webkitfullscreenchange", scaleGame);
+
+// Initial scale
+scaleGame();
+
+
+// ==========================================
 // PART 1: PHYSICS SIMULATION
 // ==========================================
-
 const canvas = document.getElementById('simulation');
 const ctx = canvas.getContext('2d');
 
-// Config
-let config = { 
-    style: 'new',      
-    graphics: 'new'    
-};
+let config = { style: 'new', graphics: 'new' };
 
 const pl = planck;
 const Vec2 = pl.Vec2;
 const SCALE = 30; 
 
-// Dynamic Dimensions
-let WIDTH = window.innerWidth;
-let HEIGHT = window.innerHeight;
+// FIXED 1080p Dimensions (Window size no longer affects this)
+const WIDTH = 1920;
+const HEIGHT = 1080;
 canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
 const p2m = (px) => px / SCALE;
 const m2p = (m) => m * SCALE;
 
-// Physics World
 const world = pl.World({
     gravity: Vec2(0, 0),
     velocityThreshold: 0, 
@@ -53,9 +75,7 @@ function updateBounds() {
 function createSingleWall(x, y, w, h) {
     const body = world.createBody(Vec2(p2m(x), p2m(y)));
     body.createFixture(pl.Box(p2m(w/2), p2m(h/2)), {
-        friction: 0.0, 
-        restitution: 1.0, 
-        density: 0.0
+        friction: 0.0, restitution: 1.0, density: 0.0
     });
     wallBodies.push(body);
 }
@@ -74,15 +94,6 @@ function setupWalls() {
 
 setupWalls();
 
-// Handle Resizing (Scale to current window)
-window.addEventListener('resize', () => {
-    WIDTH = window.innerWidth;
-    HEIGHT = window.innerHeight;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    setupWalls();
-});
-
 // --- BALL LOGIC ---
 function createBall(xPx, yPx, radiusPx, color, shouldMove) {
     const radiusM = p2m(radiusPx);
@@ -90,22 +101,16 @@ function createBall(xPx, yPx, radiusPx, color, shouldMove) {
     body.setBullet(true);
     body.setLinearDamping(0.0);
     body.setAngularDamping(0.0);
-
     body.setUserData({ radius: radiusM, isBall: true });
 
     body.createFixture(pl.Circle(radiusM), {
-        density: BALL_DENSITY,
-        friction: BALL_FRICTION, 
-        restitution: BALL_RESTITUTION 
+        density: BALL_DENSITY, friction: BALL_FRICTION, restitution: BALL_RESTITUTION 
     });
 
     if (shouldMove) {
         const speed = 25; 
         const angle = Math.random() * Math.PI * 2;
         body.setLinearVelocity(Vec2(Math.cos(angle) * speed, Math.sin(angle) * speed));
-    } else {
-        body.setLinearVelocity(Vec2(0, 0));
-        body.setAngularVelocity(0);
     }
 
     balls.push({ body: body, radius: radiusPx, color: color });
@@ -119,7 +124,6 @@ function initGame() {
     const centerX = WIDTH / 2;
     const centerY = HEIGHT / 2;
     
-    // Vertical spacing
     const rowHeight = 140; 
     const totalBlockHeight = rowHeight * (rows - 1); 
     const startY = centerY - (totalBlockHeight / 2);
@@ -129,16 +133,13 @@ function initGame() {
         const isOldStyle = config.style === 'old';
         const isTopRow = r === 0;
 
-        // 1. Small Ball (Left)
         const smallR = BASE_RADIUS_PX * 0.5 * 0.75; 
         const leftShouldMove = isOldStyle || (config.style === 'new' && isTopRow);
         createBall(centerX - 130, yPos, smallR, '#3357FF', leftShouldMove);
 
-        // 2. Medium Ball (Center)
         const midR = BASE_RADIUS_PX * 0.5;
         createBall(centerX, yPos, midR, '#33FF57', isOldStyle);
 
-        // 3. Big Ball (Right)
         const bigR = BASE_RADIUS_PX; 
         createBall(centerX + 150, yPos, bigR, '#FF5733', isOldStyle);
     }
@@ -166,7 +167,6 @@ function loop() {
             
             let speed = vel.length();
             if (speed < 15) speed = 15;
-
             const component = speed * 0.7071;
 
             if (touchLeft && touchTop) {
@@ -202,13 +202,9 @@ function loop() {
         ctx.rotate(angle);
 
         let smallR, offset;
-        if (b.radius >= 55) { 
-            smallR = 13.33; offset = 26.66; 
-        } else if (b.radius >= 25) {
-            smallR = 6; offset = 12;
-        } else {
-            smallR = 4.5; offset = 9;
-        }
+        if (b.radius >= 55) { smallR = 13.33; offset = 26.66; } 
+        else if (b.radius >= 25) { smallR = 6; offset = 12; } 
+        else { smallR = 4.5; offset = 9; }
 
         if (config.graphics === 'new') {
             ctx.beginPath();
@@ -226,12 +222,8 @@ function loop() {
             ctx.fillStyle = b.color;
             ctx.fill();
 
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.strokeStyle = "rgba(0, 0, 0, 0.4)"; 
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.4)"; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(-offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
             ctx.beginPath(); ctx.arc(offset, 0, smallR, 0, Math.PI * 2); ctx.stroke();
         }
@@ -250,17 +242,12 @@ const radioButtons = document.getElementsByName('style');
 const selectGraphics = document.getElementById('graphics-style');
 const bgInput = document.getElementById('bg-text-input');
 
-// --- FULLSCREEN LOGIC ---
 function goFull() {
   const el = document.documentElement;
-  if (el.requestFullscreen) {
-    el.requestFullscreen();
-  } else if (el.webkitRequestFullscreen) { // older Android/Safari fallback
-    el.webkitRequestFullscreen();
-  }
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 }
 
-// Attach fullscreen to the new button
 btnMobile.addEventListener('click', goFull);
 
 function toggleMenu() { menu.classList.toggle('hidden'); }
@@ -270,19 +257,12 @@ function updateConfigFromUI() {
         if (rb.checked) { config.style = rb.value; break; }
     }
     config.graphics = selectGraphics.value;
-    
-    // Update background text
-    if (window.updateBgText) {
-        window.updateBgText(bgInput.value || " ");
-    }
+    if (window.updateBgText) window.updateBgText(bgInput.value || " ");
 }
 
 btnTrigger.addEventListener('click', toggleMenu);
 document.addEventListener('keydown', (e) => {
-    // Check if user is typing in the box
-    if (e.target !== bgInput && (e.key === 'o' || e.key === 'O')) {
-        toggleMenu();
-    }
+    if (e.target !== bgInput && (e.key === 'o' || e.key === 'O')) toggleMenu();
 });
 btnApply.addEventListener('click', () => {
     updateConfigFromUI();
@@ -291,7 +271,6 @@ btnApply.addEventListener('click', () => {
 });
 btnClose.addEventListener('click', () => { menu.classList.add('hidden'); });
 
-// Click on canvas resets game ONLY if menu is closed
 canvas.addEventListener('click', () => {
     if(menu.classList.contains('hidden')) initGame();
 });
@@ -304,8 +283,14 @@ loop();
 // PART 2: DYNAMIC BACKGROUND (Pemmyz)
 // ==========================================
 (function() {
-    const screen = document.getElementById("bg-canvas");
-    const sctx = screen.getContext("2d");
+    const screenBg = document.getElementById("bg-canvas");
+    const sctx = screenBg.getContext("2d");
+    
+    // Fixed Size for 1080p rendering matching the physics engine
+    const BG_WIDTH = 1920;
+    const BG_HEIGHT = 1080;
+    screenBg.width = BG_WIDTH;
+    screenBg.height = BG_HEIGHT;
     
     let currentText = "pemmyz"; 
     const FONT_STR = "bold 44px Arial Black, Impact, sans-serif";
@@ -328,107 +313,67 @@ loop();
 
     function updateDimensions() {
         tileCtx.font = FONT_STR;
-        // Measure the text width so long strings don't get cut off
         const metrics = tileCtx.measureText(currentText);
         const textWidth = Math.ceil(metrics.width);
-        
         const padding = 60; 
         TILE_W = Math.max(50, textWidth + padding);
-        
         tile.width = TILE_W;
         tile.height = TILE_H;
         ROW_OFFSET = Math.floor(TILE_W * 0.5);
     }
 
-    function drawBackground() {
+    function renderTile() {
+        tileCtx.clearRect(0, 0, TILE_W, TILE_H);
+        
         tileCtx.fillStyle = "rgb(12, 55, 12)";
         tileCtx.fillRect(0, 0, TILE_W, TILE_H);
-    }
-
-    function drawText() {
+        
         tileCtx.save();
         tileCtx.textAlign = "center";
         tileCtx.textBaseline = "middle";
         tileCtx.font = FONT_STR;
-
         tileCtx.shadowColor = "rgba(0, 255, 0, 0.20)";
         tileCtx.shadowBlur = 10;
         tileCtx.fillStyle = "rgba(0, 120, 0, 0.55)";
         tileCtx.fillText(currentText, TILE_W / 2, TILE_H / 2);
-
         tileCtx.shadowBlur = 0;
         tileCtx.fillStyle = "rgba(0, 90, 0, 0.65)";
         tileCtx.fillText(currentText, TILE_W / 2, TILE_H / 2);
         tileCtx.restore();
-    }
 
-    function addNoise(amount = 0.55) {
+        // Smear
+        tileCtx.save();
+        tileCtx.globalAlpha = 0.10;
+        tileCtx.drawImage(tile, -1, 0); tileCtx.drawImage(tile, 1, 0);
+        tileCtx.drawImage(tile, 0, -1); tileCtx.drawImage(tile, 0, 1);
+        tileCtx.restore();
+
+        // Noise
         const img = tileCtx.getImageData(0, 0, TILE_W, TILE_H);
         const d = img.data;
-        const len = d.length;
-
-        for (let i = 0; i < len; i += 4) {
-            const n = (Math.random() * 2 - 1);
-            const noise = n * 35 * amount;
-
-            d[i]     = clamp(d[i]     + noise * 0.4, 0, 255);
+        for (let i = 0; i < d.length; i += 4) {
+            const noise = (Math.random() * 2 - 1) * 35 * 0.85;
+            d[i] = clamp(d[i] + noise * 0.4, 0, 255);
             d[i + 1] = clamp(d[i + 1] + noise * 1.0, 0, 255);
             d[i + 2] = clamp(d[i + 2] + noise * 0.4, 0, 255);
         }
         tileCtx.putImageData(img, 0, 0);
-    }
 
-    function addScanlines() {
+        // Scanlines
         tileCtx.save();
         tileCtx.globalAlpha = 0.08;
         tileCtx.fillStyle = "#000";
-        for (let y = 0; y < TILE_H; y += 2) {
-            tileCtx.fillRect(0, y, TILE_W, 1);
-        }
+        for (let y = 0; y < TILE_H; y += 2) tileCtx.fillRect(0, y, TILE_W, 1);
         tileCtx.restore();
-    }
-
-    function smear() {
-        tileCtx.save();
-        tileCtx.globalAlpha = 0.10;
-        tileCtx.drawImage(tile, -1, 0);
-        tileCtx.drawImage(tile, 1, 0);
-        tileCtx.drawImage(tile, 0, -1);
-        tileCtx.drawImage(tile, 0, 1);
-        tileCtx.restore();
-    }
-
-    function renderTile() {
-        tileCtx.clearRect(0, 0, TILE_W, TILE_H);
-        drawBackground();
-        drawText();
-        smear();
-        addNoise(0.85);
-        addScanlines();
-        addNoise(0.35);
-    }
-
-    function resize() {
-        const dpr = window.devicePixelRatio || 1;
-        // Make sure background covers the whole window even after resize
-        screen.width = Math.floor(window.innerWidth * dpr);
-        screen.height = Math.floor(window.innerHeight * dpr);
-        sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        
-        // Redraw if static mode
-        if (!animateNoise && cachedStaticImg) {
-            drawStaggeredTiling(cachedStaticImg);
-        }
     }
 
     function drawStaggeredTiling(imgSource) {
-        // Clear based on dynamic window size
-        sctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        sctx.clearRect(0, 0, BG_WIDTH, BG_HEIGHT);
         sctx.fillStyle = "rgb(12, 55, 12)";
-        sctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        sctx.fillRect(0, 0, BG_WIDTH, BG_HEIGHT);
 
-        const rows = Math.ceil(window.innerHeight / TILE_H) + 1;
-        const cols = Math.ceil(window.innerWidth / TILE_W) + 2;
+        const rows = Math.ceil(BG_HEIGHT / TILE_H) + 1;
+        const cols = Math.ceil(BG_WIDTH / TILE_W) + 2;
 
         for (let r = 0; r < rows; r++) {
             const y = r * TILE_H;
@@ -474,16 +419,11 @@ loop();
 
     window.addEventListener("keydown", (e) => {
         if (e.target.tagName === 'INPUT') return;
-
-        // Press 'A' to toggle noise animation on background
         if (e.key.toLowerCase() === "a") {
             animateNoise = !animateNoise;
             startBg();
         }
     });
 
-    window.addEventListener("resize", resize);
-
-    resize();
     startBg();
 })();
