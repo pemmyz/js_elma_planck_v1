@@ -6,7 +6,7 @@ function scaleGame() {
     const baseWidth = 1920;
     const baseHeight = 1080;
     
-    // Math.min forces a strict 16:9 aspect ratio fit (letterbox/pillarbox)
+    // Math.min forces a strict 16:9 aspect ratio fit
     const scale = Math.min(
         window.innerWidth / baseWidth,
         window.innerHeight / baseHeight
@@ -27,6 +27,33 @@ scaleGame();
 
 
 // ==========================================
+// FULLSCREEN / MOBILE BUTTON LOGIC
+// ==========================================
+const btnMobile = document.getElementById('btn-mobile');
+
+function goFull() {
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+
+btnMobile.addEventListener('click', goFull);
+
+function updateMobileButtonVisibility() {
+    // Check if browser is currently in fullscreen
+    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    btnMobile.style.display = isFullscreen ? "none" : "block";
+}
+
+// Listen for fullscreen toggles to hide/show the button
+document.addEventListener("fullscreenchange", updateMobileButtonVisibility);
+document.addEventListener("webkitfullscreenchange", updateMobileButtonVisibility);
+
+// Run once at startup
+updateMobileButtonVisibility();
+
+
+// ==========================================
 // PART 1: PHYSICS SIMULATION
 // ==========================================
 const canvas = document.getElementById('simulation');
@@ -38,7 +65,7 @@ const pl = planck;
 const Vec2 = pl.Vec2;
 const SCALE = 30; 
 
-// FIXED 1080p Dimensions (Window size no longer affects this)
+// FIXED 1080p Dimensions
 const WIDTH = 1920;
 const HEIGHT = 1080;
 canvas.width = WIDTH;
@@ -232,23 +259,14 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// --- UI & INTERACTIONS ---
+// --- UI OPTIONS & INTERACTIONS ---
 const menu = document.getElementById('options-menu');
 const btnTrigger = document.getElementById('btn-options-trigger');
-const btnMobile = document.getElementById('btn-mobile');
 const btnApply = document.getElementById('btn-apply');
 const btnClose = document.getElementById('btn-close');
 const radioButtons = document.getElementsByName('style');
 const selectGraphics = document.getElementById('graphics-style');
 const bgInput = document.getElementById('bg-text-input');
-
-function goFull() {
-  const el = document.documentElement;
-  if (el.requestFullscreen) el.requestFullscreen();
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-}
-
-btnMobile.addEventListener('click', goFull);
 
 function toggleMenu() { menu.classList.toggle('hidden'); }
 

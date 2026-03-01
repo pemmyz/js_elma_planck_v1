@@ -69,27 +69,29 @@ canvas#simulation {
     pointer-events: auto; /* Re-enable clicks on the canvas itself */
 }
 
-/* --- UI Buttons --- */
+/* --- MOVED OUTSIDE: UI Buttons --- */
 #btn-mobile {
-    position: absolute;
+    position: fixed;          /* 🔥 Important: locks to window, not game */
     top: 20px;
     left: 20px;
-    background-color: rgba(255, 255, 255, 0.1);
+
+    background-color: rgba(255, 255, 255, 0.15);
     color: #fff;
     border: 1px solid #777;
-    padding: 10px 15px;
+    padding: 16px 22px;       /* Bigger before fullscreen */
+    font-size: 28px;          /* Larger text */
+    border-radius: 6px;
+
     cursor: pointer;
-    font-size: 24px; /* Scaled up slightly for 1080p layout */
-    z-index: 20;
+    z-index: 9999;            /* Above everything */
     transition: background 0.2s;
-    border-radius: 4px;
-    pointer-events: auto;
 }
 
 #btn-mobile:hover { 
-    background-color: rgba(255, 255, 255, 0.25); 
+    background-color: rgba(255, 255, 255, 0.35); 
 }
 
+/* In-game button (scales with screen) */
 #btn-options-trigger {
     position: absolute;
     bottom: 20px;
@@ -134,7 +136,7 @@ canvas#simulation {
     padding: 40px;
     border-radius: 8px;
     border: 1px solid #555;
-    width: 500px; /* Scaled for 1080p */
+    width: 500px;
     text-align: center;
     box-shadow: 0 10px 25px rgba(0,0,0,0.8);
     font-size: 20px;
