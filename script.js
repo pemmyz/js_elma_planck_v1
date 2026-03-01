@@ -32,25 +32,32 @@ scaleGame();
 const btnMobile = document.getElementById('btn-mobile');
 
 function goFull() {
-  const el = document.documentElement;
-  if (el.requestFullscreen) el.requestFullscreen();
-  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 }
 
-btnMobile.addEventListener('click', goFull);
+// Hide the button instantly upon clicking
+btnMobile.addEventListener('click', () => {
+    goFull();
+    btnMobile.style.display = "none"; 
+});
 
-function updateMobileButtonVisibility() {
-    // Check if browser is currently in fullscreen
+// Only bring the button back if the user exits fullscreen (e.g., pressing ESC)
+function checkFullscreen() {
     const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    btnMobile.style.display = isFullscreen ? "none" : "block";
+    if (!isFullscreen) {
+        btnMobile.style.display = "block";
+    } else {
+        btnMobile.style.display = "none";
+    }
 }
 
-// Listen for fullscreen toggles to hide/show the button
-document.addEventListener("fullscreenchange", updateMobileButtonVisibility);
-document.addEventListener("webkitfullscreenchange", updateMobileButtonVisibility);
+document.addEventListener("fullscreenchange", checkFullscreen);
+document.addEventListener("webkitfullscreenchange", checkFullscreen);
 
-// Run once at startup
-updateMobileButtonVisibility();
+// Check once on load just in case
+checkFullscreen();
 
 
 // ==========================================

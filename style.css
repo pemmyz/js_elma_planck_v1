@@ -71,7 +71,7 @@ canvas#simulation {
 
 /* --- MOVED OUTSIDE: UI Buttons --- */
 #btn-mobile {
-    position: fixed;          /* 🔥 Important: locks to window, not game */
+    position: fixed;          /* locks to window, not game */
     top: 20px;
     left: 20px;
 
@@ -211,3 +211,12 @@ button {
 #btn-apply:hover { background-color: #218838; }
 #btn-close { background-color: #6c757d; color: white; } 
 #btn-close:hover { background-color: #5a6268; }
+
+/* --- FOOLPROOF FULLSCREEN HIDE --- */
+:fullscreen #btn-mobile {
+    display: none !important;
+}
+
+:-webkit-full-screen #btn-mobile {
+    display: none !important;
+}
