@@ -69,7 +69,7 @@ canvas#simulation {
     pointer-events: auto; /* Re-enable clicks on the canvas itself */
 }
 
-/* --- MOVED OUTSIDE: UI Buttons --- */
+/* UI Buttons */
 #btn-mobile {
     position: fixed;          /* locks to window, not game */
     top: 20px;
@@ -219,4 +219,65 @@ button {
 
 :-webkit-full-screen #btn-mobile {
     display: none !important;
+}
+
+/* ==========================================
+   MOBILE BROWSER SPECIFIC MENU SIZING
+   Scales up base sizes in the 1080p resolution 
+   only for mobile browsers so it remains huge 
+   after the standard viewport downscaling
+========================================== */
+body.mobile-browser #btn-options-trigger {
+    font-size: 45px;
+    padding: 25px 40px;
+    bottom: 40px;
+    left: 40px;
+    border-radius: 10px;
+}
+
+body.mobile-browser .menu-content {
+    width: 1500px; /* Takes up vast majority of 1920px screen */
+    padding: 80px;
+    border-radius: 16px;
+    font-size: 45px;
+}
+
+body.mobile-browser .menu-content h2 {
+    font-size: 80px;
+    padding-bottom: 30px;
+    margin-bottom: 40px;
+}
+
+body.mobile-browser .radio-group {
+    gap: 25px;
+}
+
+body.mobile-browser .radio-group label {
+    padding: 30px;
+    font-size: 45px;
+    gap: 30px;
+    border-radius: 12px;
+}
+
+body.mobile-browser input[type="radio"] {
+    transform: scale(3.5); /* Increase radio button physical size */
+    margin: 0 20px;
+}
+
+body.mobile-browser select, 
+body.mobile-browser input[type="text"] {
+    font-size: 45px;
+    padding: 35px;
+    margin-top: 20px;
+    border-radius: 12px;
+}
+
+body.mobile-browser .menu-actions {
+    margin-top: 60px;
+}
+
+body.mobile-browser button {
+    font-size: 45px;
+    padding: 35px 60px;
+    border-radius: 12px;
 }

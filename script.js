@@ -1,4 +1,19 @@
 // ==========================================
+// MOBILE BROWSER DETECTION
+// ==========================================
+function detectMobileBrowser() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                     (navigator.maxTouchPoints > 0 && window.matchMedia("(pointer: coarse)").matches);
+    
+    if (isMobile) {
+        // Appends class to trigger massive UI upscaling logic specifically meant 
+        // to be beautifully downscaled alongside the rest of the canvas loop.
+        document.body.classList.add('mobile-browser');
+    }
+}
+detectMobileBrowser();
+
+// ==========================================
 // SCALING LOGIC (Strict 1080p Aspect Ratio)
 // ==========================================
 function scaleGame() {
@@ -24,7 +39,6 @@ window.addEventListener("webkitfullscreenchange", scaleGame);
 
 // Initial scale
 scaleGame();
-
 
 // ==========================================
 // FULLSCREEN / MOBILE BUTTON LOGIC
